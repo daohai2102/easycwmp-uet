@@ -1,6 +1,6 @@
 1. EasyCwmp  
 ===========
-EasyCwmp is a GPLv2 open source implementation of the TR069 cwmp standard. EasyCwmp is developed by PIVA Software (www.pivasoftware.com) and it is derived from the project freecwmp.The aim of this project is to be fully conform with the TR069 CWMP standard.
+EasyCwmp-UET is a GPLv2 open source implementation of the TR069 cwmp standard. EasyCwmp-UET is developed by UET (www.uet.vnu.edu.vn) and it is derived from the project EasyCwmp (which is developed by PIVA Software). The aim of this project is to fully support wirelessi devices.
 
 2.  EasyCwmp sources
 ====================
@@ -47,7 +47,6 @@ Build as package:
 
 make menuconfig   #(And then select the package as <M>)
 make package/easycwmp/compile
-
 Install:
 
     Build as built-in: install your OpenWRT system in your device according to the OpenWRT manuals and then  start your system and you will get easycwmp running automatically
