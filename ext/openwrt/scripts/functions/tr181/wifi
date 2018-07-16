@@ -124,8 +124,9 @@ sub_entry_WiFi_AccessPoint_AssociatedDevice() {
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.PacketsReceived" "0" "wifi_ap_assoc_get_PacketsReceived $ifname $mac" "" "xsd:unsignedLong" "1"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.RetransCount" "0" "wifi_ap_assoc_get_RetransCount $ifname $mac" "" "xsd:unsignedInt" "1"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.FailedRetransCount" "0" "wifi_ap_assoc_get_FailedRetransCount $ifname $mac" "" "xsd:unsignedInt" "1"
-
+		return 0
 	}
+	return $E_INVALID_PARAMETER_NAME;
 }
 
 wifi_reset() {
