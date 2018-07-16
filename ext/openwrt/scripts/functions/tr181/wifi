@@ -44,10 +44,10 @@ sub_entry_WiFi_Radio() {
 		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingFrequencyBand" "0" "wifi_radio_get_OperatingFrequencyBand $radio" "" "xsd:string" "1"
 		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.SupportedStandards" "0" "wifi_radio_get_SupportedStandards $radio" "" "xsd:string" "1"
 		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingStandards" "1" "wifi_radio_get_OperatingStandards $radio" "wifi_radio_set_OperatingStandards $radio" "xsd:string" "1"
-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.ChannelsInUse" "0" "wifi_radio_get_ChannelsInUse $radio" 
-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Channel" "1" "wifi_radio_get_Channel $radio" "wifi_radio_set_Channel $radio" "xsd:unsignedInt"
-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelSupported" "0" "echo 1" "" "xsd:boolean"
-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelEnable" "1" "wifi_radio_get_AutoChannelEnable $radio" "wifi_radio_set_AutoChannelEnable $radio" "xsd:boolean"
+		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.ChannelsInUse" "0" "wifi_radio_get_ChannelsInUse $radio" "" "xsd:string" "1"
+		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Channel" "1" "wifi_radio_get_Channel $radio" "wifi_radio_set_Channel $radio" "xsd:unsignedInt" "1"
+		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelSupported" "0" "echo 1" "" "xsd:boolean" "1"
+		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelEnable" "1" "wifi_radio_get_AutoChannelEnable $radio" "wifi_radio_set_AutoChannelEnable $radio" "xsd:boolean" "1"
 		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.SupportedOperatingChannelBandwidths" "0" "wifi_radio_get_SupportedOperatingChannelBandwidths $radio" "" "xsd:string" "1"
 		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingChannelBandwidth" "1" "wifi_radio_get_OperatingChannelBandwidth $radio" "wifi_radio_set_OperatingChannelBandwidth $radio" "xsd:string" "1"
 		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.GuardInterval" "1" "wifi_radio_get_GuardInterval $radio" "wifi_radio_set_GuardInterval $radio" "xsd:string" "1"
@@ -70,12 +70,14 @@ sub_entry_WiFi_SSID() {
 	local iface="$3"
 	case_param "$1" belongto "$DMROOT.WiFi.SSID.$j." && {
 		common_execute_method_obj "$DMROOT.WiFi.SSID.$j." "1" "" "del_wifi_ssid $iface"
-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Enable" "1" "wifi_ssid_get_Enable $iface" "wifi_ssid_set_Enable $iface" "xsd:boolean"
-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Status" "0" "wifi_ssid_get_Status $iface"
-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Name" "0" "wifi_ssid_get_Name $iface"
-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.LowerLayers" "1" "wifi_ssid_get_LowerLayers $iface" "wifi_ssid_set_LowerLayers $iface"
-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.SSID" "1" "wifi_ssid_get_SSID $iface" "wifi_ssid_set_SSID $iface"
-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "1" "wifi_ssid_get_X_IPInterface $iface" "wifi_ssid_set_X_IPInterface $iface"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Enable" "1" "wifi_ssid_get_Enable $iface" "wifi_ssid_set_Enable $iface" "xsd:boolean" "1"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Status" "0" "wifi_ssid_get_Status $iface" "" "xsd:string" "1"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Name" "0" "wifi_ssid_get_Name $iface" "" "xsd:string" "1"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.LowerLayers" "1" "wifi_ssid_get_LowerLayers $iface" "wifi_ssid_set_LowerLayers $iface" "xsd:string" "1"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.BSSID" "0" "wifi_ssid_get_BSSID $iface" "" "xsd:string(17)" "1"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.MACAddress" "0" "wifi_ssid_get_MACAddress $iface" "" "xsd:string" "1"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.SSID" "1" "wifi_ssid_get_SSID $iface" "wifi_ssid_set_SSID $iface" "xsd:string" "1"
+		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "1" "wifi_ssid_get_X_IPInterface $iface" "wifi_ssid_set_X_IPInterface $iface" "xsd:string" "1"
 		return 0
 	}
 	return $E_INVALID_PARAMETER_NAME;		
@@ -89,6 +91,7 @@ sub_entry_WiFi_AccessPoint() {
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Enable" "1" "wifi_ap_get_Enable $iface" "wifi_ap_set_Enable $iface" "xsd:boolean"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Status" "0" "wifi_ap_get_Status $iface"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.SSIDReference" "0" "echo $DMROOT.WiFi.SSID.$j."
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.AssociatedDeviceNumberOfEntries" "0" "wifi_ap_get_AssociatedDeviceNumberOfEntries $iface" "" "xsd:unsignedInt" "1"
 		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$j.Security." "0"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.ModesSupported" "0" "wifi_ap_get_ModesSupported $iface"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.ModeEnabled" "1" "wifi_ap_get_ModeEnabled $iface" "wifi_ap_set_ModeEnabled $iface"
@@ -679,4 +682,19 @@ wifi_radio_get_BeaconPeriod() {
 
 wifi_radio_get_PreambleType() {
 	echo "todo"
+}
+
+wifi_ssid_get_BSSID() {
+	local ifname=`wifi_ssid_get_Name $1`
+	echo `iwinfo $ifname info | awk 'BEGIN{FS=": ";} /Access Point/ {print $2}'`
+}
+
+wifi_ssid_get_MACAddress() {
+	local ifname=`wifi_ssid_get_Name $1`
+	echo `iw $ifname info | awk '/addr/ {print toupper($2)}'`
+}
+
+wifi_ap_get_AssociatedDeviceNumberOfEntries() {
+	local ifname=`wifi_ssid_get_Name $1`
+	echo `iw $ifname station dump | grep "Station" | wc -l`
 }
