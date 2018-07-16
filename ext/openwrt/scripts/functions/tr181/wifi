@@ -742,12 +742,12 @@ wifi_ap_assoc_get_AuthenticationState() {
 }
 
 wifi_ap_assoc_get_LastDataDownlinkRate() {
-	local rate=`iw $1 station get $2 | grep "rx bitrate" | cut -d':' -f2 | awk '{print $1}'`
+	local rate=`iw $1 station get $2 | grep "tx bitrate" | cut -d':' -f2 | awk '{print $1}'`
 	echo $rate | awk '{print $1 * 1000}'
 }
 
 wifi_ap_assoc_get_LastDataUplinkRate() {
-	local rate=`iw $1 station get $2 | grep "tx bitrate" | cut -d':' -f2 | awk '{print $1}'`
+	local rate=`iw $1 station get $2 | grep "rx bitrate" | cut -d':' -f2 | awk '{print $1}'`
 	echo $rate | awk '{print $1 * 1000}'
 }
 
