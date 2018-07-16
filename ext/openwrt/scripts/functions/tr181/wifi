@@ -98,9 +98,34 @@ sub_entry_WiFi_AccessPoint() {
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.WEPKey" "1" "wifi_get_secret" "wifi_ap_set_WEPKey $iface" "xsd:hexBinary­"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.PreSharedKey" "1" "wifi_get_secret" "wifi_ap_set_PreSharedKey $iface" "xsd:hexBinary­"
 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.KeyPassphrase" "1" "wifi_get_secret" "wifi_ap_set_KeyPassphrase $iface"
+		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$j.AssociatedDevice." "0" "" "" "wifi_ap_assoc_browse_instances $1 $iface"
 		return 0
 	}
 	return $E_INVALID_PARAMETER_NAME;		
+}
+
+sub_entry_WiFi_AccessPoint_AssociatedDevice() {
+	local ifname=`wifi_ssid_get_Name $2`
+	local j=$3
+	local mac=$4
+	local i=`$UCI_GET $iface.wifi_ap_instance`
+	case_param "$1" belongto "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j." && {
+		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j." "0"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.MACAddress" "0" "echo $mac" "" "xsd:string(17)" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.AuthenticationState" "0" "wifi_ap_assoc_get_AuthenticationState $ifname $mac" "" "xsd:boolean" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.LastDataDownlinkRate" "0" "wifi_ap_assoc_get_LastDataDownlinkRate $ifname $mac" "" "xsd:unsignedInt[1000:]" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.LastDataUplinkRate" "0" "wifi_ap_assoc_get_LastDataUplinkRate $ifname $mac" "" "xsd:unsignedInt[1000:]" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.SignalStrength" "0" "wifi_ap_assoc_get_SignalStrength $ifname $mac" "" "xsd:int[-200:0]" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Noise" "0" "wifi_ap_assoc_get_Noise $ifname $mac" "" "xsd:int[-200:0]" "1"
+		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats." "0"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.BytesSent" "0" "wifi_ap_assoc_get_BytesSent $ifname $mac" "" "xsd:unsignedLong" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.BytesReceived" "0" "wifi_ap_assoc_get_BytesReceived $ifname $mac" "" "xsd:unsignedLong" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.PacketsSent" "0" "wifi_ap_assoc_get_PacketsSent $ifname $mac" "" "xsd:unsignedLong" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.PacketsReceived" "0" "wifi_ap_assoc_get_PacketsReceived $ifname $mac" "" "xsd:unsignedLong" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.RetransCount" "0" "wifi_ap_assoc_get_RetransCount $ifname $mac" "" "xsd:unsignedInt" "1"
+		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.FailedRetransCount" "0" "wifi_ap_assoc_get_FailedRetransCount $ifname $mac" "" "xsd:unsignedInt" "1"
+
+	}
 }
 
 wifi_reset() {
@@ -193,6 +218,17 @@ wifi_ap_browse_instances() {
 	for iface in $ifaces; do
 		local j=`wifi_ap_update_instance $iface`
 		sub_entry_WiFi_AccessPoint  "$1" "$j" "$iface"
+	done
+}
+
+wifi_ap_assoc_browse_instances() {
+	local ifname=`wifi_ssid_get_Name $2`
+	local maclist=`iw $ifname station dump | awk '/Station/ {print toupper($2)}'`
+	local i=1
+	for mac in $maclist
+	do
+		sub_entry_WiFi_AccessPoint_AssociatedDevice "$1" "$2" "$i" "$mac"
+		i=$((++i))
 	done
 }
 
@@ -697,4 +733,51 @@ wifi_ssid_get_MACAddress() {
 wifi_ap_get_AssociatedDeviceNumberOfEntries() {
 	local ifname=`wifi_ssid_get_Name $1`
 	echo `iw $ifname station dump | grep "Station" | wc -l`
+}
+
+wifi_ap_assoc_get_AuthenticationState() {
+	local state=`iw $1 station get $2 | awk '/authenticated/ {print $2}'`
+	[ "$state" = "yes" ] && echo 1 || echo 0
+}
+
+wifi_ap_assoc_get_LastDataDownlinkRate() {
+	local rate=`iw $1 station get $2 | grep "rx bitrate" | cut -d':' -f2 | awk '{print $1}'`
+	echo $rate | awk '{print $1 * 1000}'
+}
+
+wifi_ap_assoc_get_LastDataUplinkRate() {
+	local rate=`iw $1 station get $2 | grep "tx bitrate" | cut -d':' -f2 | awk '{print $1}'`
+	echo $rate | awk '{print $1 * 1000}'
+}
+
+wifi_ap_assoc_get_SignalStrength() {
+	echo `iwinfo $1 assoclist | grep $2 | awk '{print $2}'`
+}
+
+wifi_ap_assoc_get_Noise() {
+	echo `iwinfo $1 assoclist | grep $2 | awk '{print $5}'`
+}
+
+wifi_ap_assoc_get_BytesSent() {
+	echo `iw $1 station get $2 | awk '/tx bytes/ {print $3}'`
+}
+
+wifi_ap_assoc_get_BytesReceived() {
+	echo `iw $1 station get $2 | awk '/rx bytes:/ {print $3}'`
+}
+
+wifi_ap_assoc_get_PacketsSent() {
+	echo `iw $1 station get $2 | awk '/tx packets:/ {print $3}'`
+}
+
+wifi_ap_assoc_get_PacketsReceived() {
+	echo `iw $1 station get $2 | awk '/rx packets:/ {print $3}'`
+}
+
+wifi_ap_assoc_get_RetransCount() {
+	echo `iw $1 station get $2 | awk '/tx retries:/ {print $3}'`
+}
+
+wifi_ap_assoc_get_FailedRetransCount() {
+	echo `iw $1 station get $2 | awk '/tx failed:/ {print $3}'`
 }
