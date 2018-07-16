@@ -28,6 +28,23 @@ init_device_info() {
 	val=`cat "/etc/openwrt_version"`
 	oval=`$UCI_GET easycwmp.@device[0].software_version`
 	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].software_version="$val"; change=1; }
+
+	val="http://192.168.0.20/tr069/"
+	oval=`$UCI_GET easycwmp.@acs[0].url`
+	[ -z "$oval" -o "$oval" = "default" ] && { $UCI_SET easycwmp.@acs[0].url="$val"; change=1; }
+
+	val=`iw dev | awk '/addr/ {print toupper($2)}' | head -1 | sed 's/://g'`
+	oval=`$UCI_GET easycwmp.@acs[0].username`
+	[ -z "$oval" -o "$oval" = "default" ] && { $UCI_SET easycwmp.@acs[0].username="$val"; change=1; }
+
+	val="openstack"
+	oval=`$UCI_GET easycwmp.@acs[0].password`
+	[ -z "$oval" -o "$oval" = "default" ] && { $UCI_SET easycwmp.@acs[0].password="$val"; change=1;}
+
+	val=`ip route | grep default | awk '{print $NF}'`
+	oval=`$UCI_GET easycwmp.@local[0].interface`
+	[ -z "$oval" -o "$oval" = "default" ] && { $UCI_SET easycwmp.@local[0].interface="$val"; change=1;}
+
 	
 	#The same thing here for OUI and SerialNumber
 
